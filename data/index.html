@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ESP Skeleton Dashboard</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .card {
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #ff9f0a;
+            text-align: center;
+        }
+        .status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #ff3b30;
+        }
+        .dot.connected {
+            background-color: #34c759;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ESP Skeleton</h1>
+        
+        <div class="card">
+            <div class="status">
+                <span id="conn-dot" class="dot"></span>
+                <span id="conn-text">Checking status...</span>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>API Test</h2>
+            <p id="api-result">Waiting for data...</p>
+            <button onclick="fetchStatus()" style="padding: 10px 20px; background: #3a3a3c; color: white; border: none; border-radius: 5px; cursor: pointer;">Refresh Data</button>
+        </div>
+    </div>
+
+    <script>
+        async function fetchStatus() {
+            try {
+                const response = await fetch('/api/status');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('api-result').textContent = JSON.stringify(data, null, 2);
+                    document.getElementById('conn-dot').classList.add('connected');
+                    document.getElementById('conn-text').textContent = 'Connected';
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            } catch (error) {
+                document.getElementById('conn-dot').classList.remove('connected');
+                document.getElementById('conn-text').textContent = 'Disconnected';
+                document.getElementById('api-result').textContent = 'Error fetching data';
+            }
+        }
+
+        // Fetch on load
+        fetchStatus();
+        setInterval(fetchStatus, 5000);
+    </script>
+</body>
+</html>
